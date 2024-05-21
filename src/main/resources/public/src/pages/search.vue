@@ -1,9 +1,8 @@
 <template>
   <div class="wrapper">
     <div class="btn-container">
-      <button>View the products in the cart</button>
-      <RouterLink :to="`/search`"><p>View my orders</p></RouterLink>
-      <RouterLink :to="`/cart`"><p>Cart</p></RouterLink>
+      <input v-model="search" placeholder="Write your email" type="text" />
+      <RouterLink :to="`/index`"><p>Exit</p></RouterLink>
     </div>
     <div class="table-container">
       <template
@@ -32,7 +31,6 @@
         <div class="price-colomn">
           <p>{{ product_price }}</p>
         </div>
-        <div class="btn-colomn"><button>Add to cart</button></div>
       </template>
     </div>
   </div>

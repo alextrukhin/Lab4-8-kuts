@@ -1,9 +1,11 @@
 <template>
   <div class="wrapper">
     <div class="btn-container">
-      <button>View the products in the cart</button>
-      <RouterLink :to="`/search`"><p>View my orders</p></RouterLink>
-      <RouterLink :to="`/cart`"><p>Cart</p></RouterLink>
+      <button>Checkout</button>
+      <RouterLink :to="`/index`"><p>Exit to main menu</p></RouterLink>
+    </div>
+    <div class="price-container">
+      <p>Total price - $</p>
     </div>
     <div class="table-container">
       <template
@@ -32,7 +34,12 @@
         <div class="price-colomn">
           <p>{{ product_price }}</p>
         </div>
-        <div class="btn-colomn"><button>Add to cart</button></div>
+        <div class="quantity-colomn">
+          <button>-</button>
+          <p>{{ product_quantity }}</p>
+          <button>+</button>
+        </div>
+        <div class="btn-colomn"><button>Delete from cart</button></div>
       </template>
     </div>
   </div>
