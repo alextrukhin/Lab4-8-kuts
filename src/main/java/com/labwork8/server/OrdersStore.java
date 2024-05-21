@@ -15,18 +15,18 @@ import java.util.UUID;
 /**
  * ProductsStore class is used to store information about products
  */
-public class ProductsStore {
-    public static final String FILE_NAME = "products.json";
+public class OrdersStore {
+    public static final String FILE_NAME = "orders.json";
 
     /**
      * List of products
      */
-    List<Product> data = new ArrayList<Product>();
+    List<Order> data = new ArrayList<Order>();
 
     /**
      * Default constructor
      */
-    public ProductsStore() {
+    public OrdersStore() {
         data = readFromFile(FILE_NAME);
     }
 
@@ -35,56 +35,56 @@ public class ProductsStore {
      *
      * @return list of products
      */
-    public List<Product> getProducts() {
+    public List<Order> getOrders() {
         return data;
     }
 
     /**
-     * Get product by id
+     * Get order by id
      *
-     * @param id product id
-     * @return product
+     * @param id order id
+     * @return order
      */
-    public Product getProductById(String id) {
-        for (Product product : data) {
-            if (Objects.equals(product.getId(), id)) {
-                return product;
+    public Order getOrderById(String id) {
+        for (Order order : data) {
+            if (Objects.equals(order.getId(), id)) {
+                return order;
             }
         }
         return null;
     }
 
     /**
-     * Add product
+     * Add order
      *
-     * @param product product
-     * @return added product
+     * @param order order
+     * @return added order
      */
-    public Product addProduct(Product product) {
+    public Order addOrder(Order order) {
         Integer highestId = 0;
-        for (Product p : data) {
+        for (Order p : data) {
             if (p.getId() > highestId) {
                 highestId = p.getId();
             }
         }
-        Product newProduct = new ProductBuilder(product)
+        Order newOrder = new OrderBuilder(order)
                 .setId(highestId)
                 .build();
-        data.add(newProduct);
+        data.add(newOrder);
         saveListToFile(data, FILE_NAME);
-        return newProduct;
+        return newOrder;
     }
 
     /**
-     * Update product
+     * Update order
      *
-     * @param product product
-     * @return updated product
+     * @param order order
+     * @return order order
      */
-    public Product updateProduct(Product product) {
+    public Order updateOrder(Order order) {
         Integer index = null;
         for (int i = 0; i < data.size(); i++) {
-            if (Objects.equals(data.get(i).getId(), product.getId())) {
+            if (Objects.equals(data.get(i).getId(), order.getId())) {
                 index = i;
                 break;
             }
@@ -92,25 +92,17 @@ public class ProductsStore {
         if (index == null) {
             throw new RuntimeException("Product not found");
         }
-        data.set(index, product);
+        data.set(index, order);
         saveListToFile(data, FILE_NAME);
-        return product;
+        return order;
     }
 
     /**
-     * Remove product
+     * Remove order
      *
-     * @param id     product id
-     * @param orders list of orders
+     * @param id     order id
      */
-    public void removeProduct(Integer id, List<Order> orders) {
-        for (Order order : orders) {
-            for (OrderProduct orderProduct : order.getProducts()) {
-                if (Objects.equals(orderProduct.getProductId(), id)) {
-                    throw new RuntimeException("Product is used in order");
-                }
-            }
-        }
+    public void removeOrder(Integer id) {
         data.removeIf(product -> Objects.equals(product.getId(), id));
         saveListToFile(data, FILE_NAME);
     }
@@ -121,8 +113,8 @@ public class ProductsStore {
      * @param fileName file name
      * @return list of products
      */
-    private List<Product> readFromFile(String fileName) {
-        Type REVIEW_TYPE = new TypeToken<List<Product>>() {
+    private List<Order> readFromFile(String fileName) {
+        Type REVIEW_TYPE = new TypeToken<List<Order>>() {
         }.getType();
         Gson gson = new Gson();
         JsonReader reader = null;
@@ -136,12 +128,12 @@ public class ProductsStore {
     }
 
     /**
-     * Save list of products to file
+     * Save list of orders to file
      *
-     * @param list     list of products
+     * @param list     list of orders
      * @param fileName file name
      */
-    private void saveListToFile(List<Product> list, String fileName) {
+    private void saveListToFile(List<Order> list, String fileName) {
         try (Writer writer = new FileWriter(FILE_NAME)) {
             Gson gson = new GsonBuilder().create();
             gson.toJson(list, writer);

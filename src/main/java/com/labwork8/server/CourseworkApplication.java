@@ -8,8 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 public class CourseworkApplication {
@@ -19,6 +20,7 @@ public class CourseworkApplication {
      * ProductsStore instance
      */
     private final ProductsStore productsStore = new ProductsStore();
+    private final OrdersStore ordersStore = new OrdersStore();
 
     /**
      * Index page
@@ -31,38 +33,26 @@ public class CourseworkApplication {
     }
 
     /**
-     * Get list of courses for student
+     * Get all products
      *
-     * @return list of courses
+     * @return list of products
      */
-    @PostMapping(path = "/iAmEnrolledIn", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/getProducts", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> iAmEnrolledIn(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> getProducts() {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        return new ResponseEntity<Object>(gson.toJson(productsStore.getCoursesForStudent(Integer.parseInt(datamap.get("id").toString()))), HttpStatus.OK);
+
+        return new ResponseEntity<Object>(gson.toJson(productsStore.getProducts()), HttpStatus.OK);
     }
 
     /**
-     * Get list of courses for teacher
+     * Create product
      *
-     * @return list of courses
-     */
-    @PostMapping(path = "/iAmTeaching", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> iAmTeaching(@RequestBody Map<String, Object> datamap) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        return new ResponseEntity<Object>(gson.toJson(productsStore.getCoursesForTeacher(Integer.parseInt(datamap.get("id").toString()))), HttpStatus.OK);
-    }
-
-    /**
-     * Create course
-     *
-     * @param datamap { name: string, teacher_id: number }
+     * @param datamap product object
      * @return product
      */
-    @PostMapping(path = "/createCourse", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/createProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
     public ResponseEntity<Object> createCourse(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
@@ -70,113 +60,178 @@ public class CourseworkApplication {
 
         ProductBuilder productBuilder = new ProductBuilder();
 
-
-        productBuilder.setUid("")
+        productBuilder.setId(0)
                 .setName(datamap.get("name").toString())
-                .setAssignments(new ArrayList<>())
-                .setStudents(new ArrayList<>())
-                .setTeachers(List.of(Integer.parseInt(datamap.get("teacher_id").toString())));
+                .setColor(Product.Color.valueOf(datamap.get("color").toString()))
+                .setPrice(Integer.parseInt(datamap.get("price").toString()))
+                .setManufacturer(datamap.get("manufacturer").toString())
+                .setDescription(datamap.get("description").toString())
+                .setImage(datamap.get("image").toString())
+                .setQuantity(Integer.parseInt(datamap.get("quantity").toString()));
 
-        Product product = productsStore.addCourse(productBuilder.build());
+        Product product = productsStore.addProduct(productBuilder.build());
         return new ResponseEntity<Object>(gson.toJson(product), HttpStatus.OK);
     }
 
     /**
-     * Enroll to course as student
+     * Update product
      *
-     * @param datamap { student_id: number, course_id: string }
-     * @return course
+     * @param datamap product object
+     * @return product
      */
-    @PostMapping(path = "/enrollCourse", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/updateProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> enrollCourse(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> updateCourse(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Product productToUpdate = productsStore.getCourseByUid(datamap.get("course_id").toString());
-        ProductBuilder productBuilder = new ProductBuilder(productToUpdate);
+        Product product = productsStore.getProductById(datamap.get("id").toString());
+        ProductBuilder productBuilder = new ProductBuilder(product);
 
-        if (productToUpdate.getStudents().contains(Integer.parseInt(datamap.get("student_id").toString()))) {
-            return new ResponseEntity<Object>(HttpStatus.OK);
+        if (datamap.get("name") != null) {
+            productBuilder.setName(datamap.get("name").toString());
+        }
+        if (datamap.get("color") != null) {
+            productBuilder.setColor(Product.Color.valueOf(datamap.get("color").toString()));
+        }
+        if (datamap.get("price") != null) {
+            productBuilder.setPrice(Integer.parseInt(datamap.get("price").toString()));
+        }
+        if (datamap.get("manufacturer") != null) {
+            productBuilder.setManufacturer(datamap.get("manufacturer").toString());
+        }
+        if (datamap.get("description") != null) {
+            productBuilder.setDescription(datamap.get("description").toString());
+        }
+        if (datamap.get("image") != null) {
+            productBuilder.setImage(datamap.get("image").toString());
         }
 
-        List<Integer> students = productToUpdate.getStudents();
-        students.add(Integer.parseInt(datamap.get("student_id").toString()));
-        productBuilder.setStudents(students);
+        return new ResponseEntity<Object>(gson.toJson(productsStore.updateProduct(productBuilder.build())), HttpStatus.OK);
+    }
 
-        Product product = productsStore.updateCourse(productBuilder.build());
+    /**
+     * Delete product
+     *
+     * @param datamap product object
+     * @return product
+     */
+    @PostMapping(path = "/deleteProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = ORIGIN)
+    public ResponseEntity<Object> deleteCourse(@RequestBody Map<String, Object> datamap) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+
+        Product product = productsStore.getProductById(datamap.get("id").toString());
+        productsStore.removeProduct(product.getId(), ordersStore.getOrders());
         return new ResponseEntity<Object>(gson.toJson(product), HttpStatus.OK);
     }
 
     /**
-     * Enroll to course as teacher
+     * Get all orders
      *
-     * @param datamap { teacher_id: number, course_id: string }
-     * @return course
+     * @return list of orders
      */
-    @PostMapping(path = "/teachCourse", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/getOrders", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> teachCourse(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> getOrders() {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Product productToUpdate = productsStore.getCourseByUid(datamap.get("course_id").toString());
-        ProductBuilder productBuilder = new ProductBuilder(productToUpdate);
-
-        if (productToUpdate.getTeachers().contains(Integer.parseInt(datamap.get("teacher_id").toString()))) {
-            return new ResponseEntity<Object>(HttpStatus.OK);
-        }
-
-        List<Integer> teachers = productToUpdate.getTeachers();
-        teachers.add(Integer.parseInt(datamap.get("teacher_id").toString()));
-        productBuilder.setTeachers(teachers);
-
-        Product product = productsStore.updateCourse(productBuilder.build());
-        return new ResponseEntity<Object>(gson.toJson(product), HttpStatus.OK);
+        return new ResponseEntity<Object>(gson.toJson(ordersStore.getOrders()), HttpStatus.OK);
     }
 
     /**
-     * Create task
+     * Create order
      *
-     * @param datamap task object
-     * @return task
+     * @param datamap order object
+     * @return order
      */
-    @PostMapping(path = "/createTask", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/createOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> createTask(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> createOrder(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        String taskType = datamap.get("type").toString();
-        switch (taskType) {
-            case "assignment":
-                productsStore.addTask(
-                        new Assignment(0, (ArrayList<Integer>) datamap.get("assignees"), new ArrayList<>(), datamap.get("name").toString(), datamap.get("description").toString()),
-                        datamap.get("course_id").toString()
-                );
-                break;
-        }
+        OrderBuilder orderBuilder = new OrderBuilder();
 
-        return new ResponseEntity<Object>(gson.toJson(productsStore.getCourseByUid(datamap.get("course_id").toString())), HttpStatus.OK);
+        orderBuilder.setId(0)
+                .setProducts(((ArrayList<LinkedHashMap<String, ?>>) datamap.get("products")).stream().map(p -> {
+                    OrderProduct orderProduct = new OrderProduct();
+                    orderProduct.setProductId(Integer.parseInt(p.get("productId").toString()));
+                    orderProduct.setQuantity(Integer.parseInt(p.get("quantity").toString()));
+                    return orderProduct;
+                }).collect(Collectors.toList()))
+                .setTotalPrice(Integer.parseInt(datamap.get("totalPrice").toString()))
+                .setTrackingNumber(datamap.get("trackingNumber").toString())
+                .setStatus(Order.Status.valueOf(datamap.get("status").toString()))
+                .setName(datamap.get("name").toString())
+                .setEmail(datamap.get("email").toString())
+                .setPhone(datamap.get("phone").toString());
+
+        Order order = ordersStore.addOrder(orderBuilder.build());
+        return new ResponseEntity<Object>(gson.toJson(order), HttpStatus.OK);
     }
 
     /**
-     * Complete task
+     * Update order
      *
-     * @param datamap { student_id: number, task_id: number, course_uid: string }
-     * @return task
+     * @param datamap order object
+     * @return order
      */
-    @PostMapping(path = "/completeTask", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/updateOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> completeTask(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> updateOrder(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        productsStore.markTaskAsDone(datamap.get("course_uid").toString(),
-                Integer.parseInt(datamap.get("task_id").toString()),
-                Integer.parseInt(datamap.get("student_id").toString())
-        );
+        Order order = ordersStore.getOrderById(datamap.get("id").toString());
+        OrderBuilder orderBuilder = new OrderBuilder(order);
 
-        return new ResponseEntity<Object>(gson.toJson(productsStore.getCourseByUid(datamap.get("course_uid").toString())), HttpStatus.OK);
+        if (datamap.get("products") != null) {
+            orderBuilder.setProducts(((ArrayList<LinkedHashMap<String, ?>>) datamap.get("products")).stream().map(p -> {
+                OrderProduct orderProduct = new OrderProduct();
+                orderProduct.setProductId(Integer.parseInt(p.get("productId").toString()));
+                orderProduct.setQuantity(Integer.parseInt(p.get("quantity").toString()));
+                return orderProduct;
+            }).collect(Collectors.toList()));
+        }
+        if (datamap.get("totalPrice") != null) {
+            orderBuilder.setTotalPrice(Integer.parseInt(datamap.get("totalPrice").toString()));
+        }
+        if (datamap.get("trackingNumber") != null) {
+            orderBuilder.setTrackingNumber(datamap.get("trackingNumber").toString());
+        }
+        if (datamap.get("status") != null) {
+            orderBuilder.setStatus(Order.Status.valueOf(datamap.get("status").toString()));
+        }
+        if (datamap.get("name") != null) {
+            orderBuilder.setName(datamap.get("name").toString());
+        }
+        if (datamap.get("email") != null) {
+            orderBuilder.setEmail(datamap.get("email").toString());
+        }
+        if (datamap.get("phone") != null) {
+            orderBuilder.setPhone(datamap.get("phone").toString());
+        }
+
+        return new ResponseEntity<Object>(gson.toJson(ordersStore.updateOrder(orderBuilder.build())), HttpStatus.OK);
+    }
+
+    /**
+     * Delete order
+     *
+     * @param datamap order object
+     * @return order
+     */
+    @PostMapping(path = "/deleteOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = ORIGIN)
+    public ResponseEntity<Object> deleteOrder(@RequestBody Map<String, Object> datamap) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+
+        Order order = ordersStore.getOrderById(datamap.get("id").toString());
+        ordersStore.removeOrder(order.getId());
+        return new ResponseEntity<Object>(gson.toJson(order), HttpStatus.OK);
     }
 }
