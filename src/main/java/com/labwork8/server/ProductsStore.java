@@ -45,7 +45,7 @@ public class ProductsStore {
      * @param id product id
      * @return product
      */
-    public Product getProductById(String id) {
+    public Product getProductById(Integer id) {
         for (Product product : data) {
             if (Objects.equals(product.getId(), id)) {
                 return product;

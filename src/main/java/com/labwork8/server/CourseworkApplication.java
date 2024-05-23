@@ -85,7 +85,7 @@ public class CourseworkApplication {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Product product = productsStore.getProductById(datamap.get("id").toString());
+        Product product = productsStore.getProductById(Integer.parseInt(datamap.get("id").toString()));
         ProductBuilder productBuilder = new ProductBuilder(product);
 
         if (datamap.get("name") != null) {
@@ -116,13 +116,13 @@ public class CourseworkApplication {
      * @param datamap product object
      * @return product
      */
-    @PostMapping(path = "/deleteProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/deleteProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
     public ResponseEntity<Object> deleteCourse(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Product product = productsStore.getProductById(datamap.get("id").toString());
+        Product product = productsStore.getProductById(Integer.parseInt(datamap.get("id").toString()));
         productsStore.removeProduct(product.getId(), ordersStore.getOrders());
         return new ResponseEntity<Object>(gson.toJson(product), HttpStatus.OK);
     }
@@ -139,6 +139,20 @@ public class CourseworkApplication {
         Gson gson = builder.create();
 
         return new ResponseEntity<Object>(gson.toJson(ordersStore.getOrders()), HttpStatus.OK);
+    }
+
+    /**
+     * Get my orders
+     *
+     * @return list of orders
+     */
+    @PostMapping(path = "/getMyOrders", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = ORIGIN)
+    public ResponseEntity<Object> getMyOrders(@RequestBody Map<String, Object> datamap) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+
+        return new ResponseEntity<Object>(gson.toJson(ordersStore.getOrdersByUser(datamap.get("email").toString())), HttpStatus.OK);
     }
 
     /**

@@ -100,11 +100,27 @@ public class OrdersStore {
     /**
      * Remove order
      *
-     * @param id     order id
+     * @param id order id
      */
     public void removeOrder(Integer id) {
         data.removeIf(product -> Objects.equals(product.getId(), id));
         saveListToFile(data, FILE_NAME);
+    }
+
+    /**
+     * Get orders for user
+     *
+     * @param email customer email
+     * @return orders
+     */
+    public List<Order> getOrdersByUser(String email) {
+        List<Order> orders = new ArrayList<Order>();
+        for (Order order : data) {
+            if (Objects.equals(order.getEmail(), email)) {
+                orders.add(order);
+            }
+        }
+        return orders;
     }
 
     /**

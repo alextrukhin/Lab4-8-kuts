@@ -1,7 +1,13 @@
 <template>
-  <RouterLink to="/admin">
-    <p>View products</p>
+  <RouterLink to="/">
+    <p>To catalog</p>
   </RouterLink>
+  <form @submit.prevent="getOrders">
+    <input v-model="email" type="email" placeholder="Order email" />
+    <button type="submit">Get orders</button>
+  </form>
+  <p v-if="orders === null">Enter email first</p>
+  <p v-else-if="!orders?.length">No orders</p>
   <table v-for="order in ordersEnhanced" :key="order.id">
     <p>#{{ order.id }}</p>
     <p>{{ order.status }}</p>
@@ -28,8 +34,9 @@
 import { computed, ref } from 'vue'
 import { Order, Product } from '@/types'
 
-const orders = ref<Order[]>([])
+const email = ref('')
 const products = ref<Product[]>([])
+const orders = ref<Order[] | null>(null)
 
 const ordersEnhanced = computed(
   () =>
@@ -42,16 +49,22 @@ const ordersEnhanced = computed(
     })) ?? []
 )
 
+const getOrders = () => {
+  fetch(`http://localhost:8080/getMyOrders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email: email.value })
+  })
+    .then((res) => res.json())
+    .then((data) => (orders.value = data))
+}
+
 const refreshProducts = () => {
   fetch('http://localhost:8080/getProducts')
     .then((res) => res.json())
     .then((data) => (products.value = data))
 }
 refreshProducts()
-const refreshOrders = () => {
-  fetch('http://localhost:8080/getOrders')
-    .then((res) => res.json())
-    .then((data) => (orders.value = data))
-}
-refreshOrders()
 </script>
