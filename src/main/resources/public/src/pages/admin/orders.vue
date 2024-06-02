@@ -4,7 +4,14 @@
   </RouterLink>
   <table v-for="order in ordersEnhanced" :key="order.id">
     <p>#{{ order.id }}</p>
-    <p>{{ order.status }}</p>
+    <select
+      @change="setStatus(order.id, ($event.target as HTMLSelectElement).value as Order['status'])"
+    >
+      <option value="NEW" :selected="order.status === 'NEW'">NEW</option>
+      <option value="DELIVERING" :selected="order.status === 'DELIVERING'">DELIVERING</option>
+      <option value="COMPLETED" :selected="order.status === 'COMPLETED'">COMPLETED</option>
+      <option value="CANCELED" :selected="order.status === 'CANCELED'">CANCELED</option>
+    </select>
     <p>{{ order.email }}</p>
     <tr>
       <th>Product name</th>
@@ -15,14 +22,16 @@
       <th>Quantity</th>
     </tr>
     <tr v-for="p in order.products" :key="p.productId">
-      <td>{{ p.product.name }}</td>
-      <td>{{ p.product.color }}</td>
-      <td>{{ p.product.manufacturer }}</td>
-      <td>{{ p.product.price }}</td>
-      <td>
-        <img :src="p.product.image" :alt="p.product.name" style="width: 100px; height: 100px" />
-      </td>
-      <td>{{ p.quantity }}</td>
+      <div v-if="p.product">
+        <td>{{ p.product.name }}</td>
+        <td>{{ p.product.color }}</td>
+        <td>{{ p.product.manufacturer }}</td>
+        <td>{{ p.product.price }}</td>
+        <td>
+          <img :src="p.product.image" :alt="p.product.name" style="width: 100px; height: 100px" />
+        </td>
+        <td>{{ p.quantity }}</td>
+      </div>
     </tr>
   </table>
 </template>
@@ -56,6 +65,16 @@ const refreshOrders = () => {
     .then((data) => (orders.value = data))
 }
 refreshOrders()
+const setStatus = async (id: number, status: Order['status']) => {
+  await fetch('http://localhost:8080/updateOrder', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ id, status })
+  })
+  refreshOrders()
+}
 </script>
 <style scoped>
 .wrapper {

@@ -45,7 +45,7 @@ public class OrdersStore {
      * @param id order id
      * @return order
      */
-    public Order getOrderById(String id) {
+    public Order getOrderById(Integer id) {
         for (Order order : data) {
             if (Objects.equals(order.getId(), id)) {
                 return order;

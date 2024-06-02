@@ -199,7 +199,7 @@ public class Application {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Order order = ordersStore.getOrderById(datamap.get("id").toString());
+        Order order = ordersStore.getOrderById(Integer.parseInt(datamap.get("id").toString()));
         OrderBuilder orderBuilder = new OrderBuilder(order);
 
         if (datamap.get("products") != null) {
@@ -244,7 +244,7 @@ public class Application {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
-        Order order = ordersStore.getOrderById(datamap.get("id").toString());
+        Order order = ordersStore.getOrderById(Integer.parseInt(datamap.get("id").toString()));
         ordersStore.removeOrder(order.getId());
         return new ResponseEntity<Object>(gson.toJson(order), HttpStatus.OK);
     }
