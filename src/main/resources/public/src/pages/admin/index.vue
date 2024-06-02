@@ -1,31 +1,32 @@
 <template>
   <RouterLink to="/admin/orders">
-    <p>View orders</p>
+    <p style="font-weight: 600; color: cornflowerblue">View orders</p>
   </RouterLink>
   <table>
     <tr>
-      <th>Product name</th>
-      <th>Product color</th>
-      <th>Product manufacturer</th>
-      <th>Product price</th>
-      <th>Product image</th>
-      <th>Product quantity</th>
-      <th>Actions</th>
+      <th>NAME</th>
+      <th>COLOR</th>
+      <th>MANUFACTURER</th>
+      <th>PRICE</th>
+      <th>IMAGE</th>
+      <th>QUANTITY</th>
+      <th>ACTIONS</th>
     </tr>
     <tr v-for="p in products" :key="p.id">
       <td>{{ p.name }}</td>
       <td>{{ p.color }}</td>
       <td>{{ p.manufacturer }}</td>
       <td>{{ p.price }}</td>
-      <td><img :src="p.image" :alt="p.name" /></td>
+      <td><img :src="p.image" :alt="p.name" style="width: 100px; height: 100px" /></td>
       <td>{{ p.quantity }}</td>
       <td>
         <button @click="product = p">Edit</button>
-        <button @click="deleteProduct(p.id)">Delete</button>
+        <button @click="deleteProduct(p.id)" style="margin-left: 20px">Delete</button>
       </td>
     </tr>
   </table>
   <form @submit.prevent="saveProduct">
+    <p>Product:</p>
     <input v-model="product.name" placeholder="Product name" type="text" />
     <select v-model="product.color">
       <option value="BLACK">Black</option>
@@ -135,3 +136,113 @@ const refreshProducts = () => {
 }
 refreshProducts()
 </script>
+<style scoped>
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: normal;
+  flex-direction: column;
+  width: 1000px;
+  padding: 0;
+  margin: auto;
+}
+form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 1000px;
+  flex-direction: column;
+  margin-top: 50px;
+}
+input {
+  width: 220px;
+  height: 30px;
+  margin: 5px auto;
+  border-radius: 10px;
+  padding-left: 15px;
+  color: black;
+  text-align: left;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+textarea {
+  width: 220px;
+  resize: vertical;
+  margin: 5px auto;
+  border-radius: 10px;
+  padding-left: 15px;
+  color: black;
+  text-align: left;
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+select {
+  width: 220px;
+  height: 30px;
+  margin: 5px auto;
+  border-radius: 10px;
+  padding-left: 15px;
+  color: black;
+  text-align: left;
+  font-family: Montserrat;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+.product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 1000px;
+  flex-direction: row;
+  padding-bottom: 20px;
+}
+p {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  color: black;
+  text-align: center;
+}
+th {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  color: black;
+  text-align: center;
+}
+td {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  color: black;
+  text-align: center;
+}
+table {
+  width: 1000px;
+}
+button {
+  font-family: Montserrat;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  color: black;
+  outline: none;
+  border: none;
+  background-color: rgb(171, 200, 254);
+}
+</style>

@@ -68,7 +68,7 @@ public class OrdersStore {
             }
         }
         Order newOrder = new OrderBuilder(order)
-                .setId(highestId)
+                .setId(highestId + 1)
                 .build();
         data.add(newOrder);
         saveListToFile(data, FILE_NAME);

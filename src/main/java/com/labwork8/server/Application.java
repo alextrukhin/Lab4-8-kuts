@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-public class CourseworkApplication {
+public class Application {
     private final String ORIGIN = "http://localhost:5174";
 
     /**
@@ -54,7 +54,7 @@ public class CourseworkApplication {
      */
     @PostMapping(path = "/createProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> createCourse(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> createProduct(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -81,7 +81,7 @@ public class CourseworkApplication {
      */
     @PostMapping(path = "/updateProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> updateCourse(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> updateProduct(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
@@ -118,7 +118,7 @@ public class CourseworkApplication {
      */
     @DeleteMapping(path = "/deleteProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = ORIGIN)
-    public ResponseEntity<Object> deleteCourse(@RequestBody Map<String, Object> datamap) {
+    public ResponseEntity<Object> deleteProduct(@RequestBody Map<String, Object> datamap) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
 
